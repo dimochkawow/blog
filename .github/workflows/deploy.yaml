@@ -48,9 +48,9 @@ jobs:
         run: |
           aws apprunner update-service \
             --service-arn ${{ secrets.APP_RUNNER_BACKEND_ARN }} \
-            --source-configuration ImageRepository={ImageIdentifier=${{ secrets.BACKEND_ECR_REPOSITORY_URI }}:latest,ImageRepositoryType=ECR}
+            --source-configuration '{"ImageRepository": { "ImageIdentifier": "${{ secrets.BACKEND_ECR_REPOSITORY_URI }}:latest", "ImageRepositoryType": "ECR"}}'
       - name: Update App Runner Service (Frontend)
         run: |
           aws apprunner update-service \
             --service-arn ${{ secrets.APP_RUNNER_FRONTEND_ARN }} \
-            --source-configuration ImageRepository={ImageIdentifier=${{ secrets.FRONTEND_ECR_REPOSITORY_URI }}:latest,ImageRepositoryType=ECR}
+            --source-configuration '{"ImageRepository": { "ImageIdentifier": "${{ secrets.FRONTEND_ECR_REPOSITORY_URI }}:latest", "ImageRepositoryType": "ECR"}}'
