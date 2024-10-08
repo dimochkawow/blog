@@ -32,16 +32,18 @@ jobs:
         id: ecr-frontend
         run: |
           echo "::set-output name=uri::${{ secrets.FRONTEND_ECR_REPOSITORY_URI }}"
-      - name: Build and Push Docker Image to ECR (Backend)
+      - name: Build backend Docker Image
         run: |
           docker buildx build --platform linux/amd64 \
-            -t ${{ steps.ecr-backend.outputs.uri }}:latest .
-          docker push ${{ steps.ecr-backend.outputs.uri }}:latest
-      - name: Build and Push Docker Image to ECR (Frontend)
+            -t ${{ steps.ecr-backend.outputs.uri }}:latest . --load
+      - name: Push backend image to ECR
+        run: docker push ${{ steps.ecr-backend.outputs.uri }}:latest
+      - name: Build frontend Docker Image
         run: |
           docker buildx build --platform linux/amd64 \
-            -t ${{ steps.ecr-frontend.outputs.uri }}:latest .
-          docker push ${{ steps.ecr-frontend.outputs.uri }}:latest
+            -t ${{ steps.ecr-frontend.outputs.uri }}:latest . --load
+      - name: Push frontend image to ECR
+        run: docker push ${{ steps.ecr-frontend.outputs.uri }}:latest
       - name: Update App Runner Service (Backend)
         run: |
           aws apprunner update-service \
