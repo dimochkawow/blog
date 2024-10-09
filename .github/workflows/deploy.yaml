@@ -38,17 +38,18 @@ jobs:
             -t ${{ steps.ecr-backend.outputs.uri }}:latest . --load
       - name: Push backend image to ECR
         run: docker push ${{ steps.ecr-backend.outputs.uri }}:latest
+      - name: Update App Runner Service (Backend)
+        run: |
+          UPDATE_RESPONSE=$(aws apprunner update-service \
+            --service-arn ${{ secrets.APP_RUNNER_BACKEND_ARN }} \
+            --source-configuration '{"ImageRepository": { "ImageIdentifier": "${{ secrets.BACKEND_ECR_REPOSITORY_URI }}:latest", "ImageRepositoryType": "ECR"}}')
+          echo "$UPDATE_RESPONSE" | jq -r '.Service.ServiceUrl' >> $GITHUB_ENV
       - name: Build frontend Docker Image
         run: |
-          docker buildx build --platform linux/amd64 \
+          docker buildx build --platform linux/amd64 --build-arg "VITE_BACKEND_URL=${{ env.ServiceUrl }}/api/v1" \
             -t ${{ steps.ecr-frontend.outputs.uri }}:latest . --load
       - name: Push frontend image to ECR
         run: docker push ${{ steps.ecr-frontend.outputs.uri }}:latest
-      - name: Update App Runner Service (Backend)
-        run: |
-          aws apprunner update-service \
-            --service-arn ${{ secrets.APP_RUNNER_BACKEND_ARN }} \
-            --source-configuration '{"ImageRepository": { "ImageIdentifier": "${{ secrets.BACKEND_ECR_REPOSITORY_URI }}:latest", "ImageRepositoryType": "ECR"}}'
       - name: Update App Runner Service (Frontend)
         run: |
           aws apprunner update-service \
