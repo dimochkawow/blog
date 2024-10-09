@@ -18,7 +18,7 @@ export function Blog() {
 
   return (
     <>
-      <h1>Blog App</h1>
+      <h1>Blog App :)</h1>
       <div style={{ padding: 8 }}>
         <CreatePost />
         <br />
